@@ -158,11 +158,8 @@ export class Vk implements INodeType {
 		const returnData: INodeExecutionData[] = [];
 		const length = items.length;
 
-		// Получаем учетные данные OAuth2
-		const credentials = await this.getCredentials('vkApi');
-		// AccessToken теперь находится внутри credentials объекта OAuth2
-		// ApiVersion получаем из параметров узла, так как он теперь там
-		const apiVersion = this.getNodeParameter('apiVersion', 0, '5.199') as string;
+		// ApiVersion все еще нужен из параметров ноды
+		const apiVersion = this.getNodeParameter("apiVersion", 0, "5.199") as string;
 
 		// Итерируемся по входным данным
 		for (let i = 0; i < length; i++) {
@@ -207,8 +204,6 @@ export class Vk implements INodeType {
 						url: `https://api.vk.com/method/wall.post`,
 						method: 'POST',
 						qs: {
-							// Добавляем access_token из credentials и apiVersion
-							access_token: credentials.accessToken as string,
 							v: apiVersion,
 						},
 						body: body,
@@ -217,8 +212,10 @@ export class Vk implements INodeType {
 						},
 					};
 
-					// Выполняем запрос
-					const responseData = await this.helpers.httpRequest(options);
+					// Выполняем запрос с использованием httpRequestWithAuthentication
+					// Первый аргумент - имя типа credentials (
+					// Используем .call(this, ...) для обхода проблемы с типами this
+					const responseData = await this.helpers.httpRequestWithAuthentication.call(this, "vkApi", options);
 
 					// Проверяем на наличие ошибки в ответе VK API
 					if (responseData.error) {
