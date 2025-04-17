@@ -13,7 +13,7 @@ export class VkApi implements ICredentialType {
 			displayName: 'Grant Type',
 			name: 'grantType',
 			type: 'hidden',
-			default: 'authorizationCode', // Используем authorizationCode (PKCE - его расширение)
+			default: 'PKCE', // Используем authorizationCode (PKCE - его расширение)
 		},
 		{
 			displayName: 'Authorization URL',
