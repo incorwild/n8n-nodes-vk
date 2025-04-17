@@ -158,10 +158,11 @@ export class Vk implements INodeType {
 		const returnData: INodeExecutionData[] = [];
 		const length = items.length;
 
-		// Получаем учетные данные
+		// Получаем учетные данные OAuth2
 		const credentials = await this.getCredentials('vkApi');
-		const accessToken = credentials.accessToken as string;
-		const apiVersion = credentials.apiVersion as string;
+		// AccessToken теперь находится внутри credentials объекта OAuth2
+		// ApiVersion получаем из параметров узла, так как он теперь там
+		const apiVersion = this.getNodeParameter('apiVersion', 0, '5.199') as string;
 
 		// Итерируемся по входным данным
 		for (let i = 0; i < length; i++) {
@@ -169,6 +170,7 @@ export class Vk implements INodeType {
 				const operation = this.getNodeParameter('operation', i) as string;
 
 				if (operation === 'wallPost') {
+					// Получаем параметры для wall.post
 					const ownerId = this.getNodeParameter('ownerId', i, '') as string;
 					const message = this.getNodeParameter('message', i, '') as string;
 					const attachments = this.getNodeParameter('attachments', i, '') as string;
@@ -183,40 +185,17 @@ export class Vk implements INodeType {
 					};
 
 					// Формируем тело запроса
-					const body: Record<string, any> = {}; // Используем any для гибкости
-
-					if (ownerId) {
-						body.owner_id = ownerId;
-					}
-					if (message) {
-						body.message = message;
-					}
-					if (attachments) {
-						body.attachments = attachments;
-					}
-
-					// Добавляем дополнительные поля
-					if (additionalFields.fromGroup !== undefined) {
-						body.from_group = additionalFields.fromGroup ? 1 : 0;
-					}
-					if (additionalFields.friendsOnly !== undefined) {
-						body.friends_only = additionalFields.friendsOnly ? 1 : 0;
-					}
-					if (additionalFields.signed !== undefined) {
-						body.signed = additionalFields.signed ? 1 : 0;
-					}
-					if (additionalFields.publishDate !== undefined && additionalFields.publishDate > 0) {
-						body.publish_date = additionalFields.publishDate;
-					}
-					if (additionalFields.markAsAds !== undefined) {
-						body.mark_as_ads = additionalFields.markAsAds ? 1 : 0;
-					}
-					if (additionalFields.closeComments !== undefined) {
-						body.close_comments = additionalFields.closeComments ? 1 : 0;
-					}
-					if (additionalFields.muteNotifications !== undefined) {
-						body.mute_notifications = additionalFields.muteNotifications ? 1 : 0;
-					}
+					const body: Record<string, any> = {};
+					if (ownerId) body.owner_id = ownerId;
+					if (message) body.message = message;
+					if (attachments) body.attachments = attachments;
+					if (additionalFields.fromGroup !== undefined) body.from_group = additionalFields.fromGroup ? 1 : 0;
+					if (additionalFields.friendsOnly !== undefined) body.friends_only = additionalFields.friendsOnly ? 1 : 0;
+					if (additionalFields.signed !== undefined) body.signed = additionalFields.signed ? 1 : 0;
+					if (additionalFields.publishDate !== undefined && additionalFields.publishDate > 0) body.publish_date = additionalFields.publishDate;
+					if (additionalFields.markAsAds !== undefined) body.mark_as_ads = additionalFields.markAsAds ? 1 : 0;
+					if (additionalFields.closeComments !== undefined) body.close_comments = additionalFields.closeComments ? 1 : 0;
+					if (additionalFields.muteNotifications !== undefined) body.mute_notifications = additionalFields.muteNotifications ? 1 : 0;
 
 					// Проверка обязательных полей
 					if (!body.message && !body.attachments) {
@@ -228,7 +207,8 @@ export class Vk implements INodeType {
 						url: `https://api.vk.com/method/wall.post`,
 						method: 'POST',
 						qs: {
-							access_token: accessToken,
+							// Добавляем access_token из credentials и apiVersion
+							access_token: credentials.accessToken as string,
 							v: apiVersion,
 						},
 						body: body,

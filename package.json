@@ -32,7 +32,7 @@
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
-      "dist/credentials/VkApi.credentials.js"
+      "dist/nodes/Vk/VkApi.credentials.js"
     ],
     "nodes": [
       "dist/nodes/Vk/Vk.node.js"
