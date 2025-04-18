@@ -158,9 +158,6 @@ export class Vk implements INodeType {
 		const returnData: INodeExecutionData[] = [];
 		const length = items.length;
 
-		// ApiVersion все еще нужен из параметров ноды
-		const apiVersion = this.getNodeParameter("apiVersion", 0, "5.199") as string;
-
 		// Итерируемся по входным данным
 		for (let i = 0; i < length; i++) {
 			try {
@@ -203,13 +200,7 @@ export class Vk implements INodeType {
 					const options: IHttpRequestOptions = {
 						url: `https://api.vk.com/method/wall.post`,
 						method: 'POST',
-						qs: {
-							v: apiVersion,
-						},
 						body: body,
-						headers: {
-							'Content-Type': 'application/x-www-form-urlencoded',
-						},
 					};
 
 					// Выполняем запрос с использованием httpRequestWithAuthentication

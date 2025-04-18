@@ -1,4 +1,5 @@
-import { ICredentialType, INodeProperties } from 'n8n-workflow';
+import { ICredentialDataDecryptedObject, ICredentialType, IHttpRequestOptions, INodeProperties } from 'n8n-workflow';
+import { ClientOAuth2TokenData } from '@n8n/client-oauth2';
 
 export class VkApi implements ICredentialType {
 	name = 'vkApi';
@@ -6,7 +7,7 @@ export class VkApi implements ICredentialType {
 	extends = ['oAuth2Api'];
 	displayName = 'VK API';
 	// Ссылка на документацию (можно добавить свою, если будет)
-	documentationUrl = 'vk'; // Или ссылка на GitHub/документацию VK API
+	documentationUrl = 'https://github.com/soberzerg/n8n-nodes-vk'; // Или ссылка на GitHub/документацию VK API
 	properties: INodeProperties[] = [
 		// Стандартные скрытые поля для oAuth2Api
 		{
@@ -60,4 +61,20 @@ export class VkApi implements ICredentialType {
 			description: 'The VK API version to use (e.g., 5.199)',
 		},
 	];
+
+	async authenticate(
+		credentials: ICredentialDataDecryptedObject,
+		requestOptions: IHttpRequestOptions,
+	): Promise<IHttpRequestOptions> {
+		const data = credentials.oauthTokenData as ClientOAuth2TokenData;
+		requestOptions.headers = {
+			'Content-Type': 'application/x-www-form-urlencoded',
+			Authorization: `=Bearer ${data.access_token}`,
+		};
+		if (!requestOptions.qs) {
+			requestOptions.qs = {};
+		}
+		requestOptions.qs.v = credentials.apiVersion;
+		return requestOptions;
+	}
 } 
