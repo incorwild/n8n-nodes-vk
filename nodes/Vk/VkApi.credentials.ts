@@ -67,9 +67,12 @@ export class VkApi implements ICredentialType {
 		requestOptions: IHttpRequestOptions,
 	): Promise<IHttpRequestOptions> {
 		const data = credentials.oauthTokenData as ClientOAuth2TokenData;
+
+		console.log('authenticate', data);
+
 		requestOptions.headers = {
 			'Content-Type': 'application/x-www-form-urlencoded',
-			Authorization: `=Bearer ${data.access_token}`,
+			Authorization: `=Bearer ${data.accessToken}`,
 		};
 		if (!requestOptions.qs) {
 			requestOptions.qs = {};
